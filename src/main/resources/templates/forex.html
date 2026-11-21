@@ -326,7 +326,7 @@
 </main>
 
 <footer class="site-footer">
-    IDE ÍRD A NEVEDET - IDE ÍRD A NEPTUN KÓDOD
+    Hajdler Zoltan - R9PCXL
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -378,60 +378,73 @@
 
     // ACCOUNT
 
+
     async function loadAccount() {
-
         try {
-
             const data = await api("/api/oanda/account");
 
+            // Az OANDA a számlaadatokat az "account" objektumban adja vissza.
+            const account = data.account;
+
+            if (!account) {
+                throw new Error("Az OANDA válaszából hiányoznak a számlaadatok.");
+            }
+
             document.getElementById("accountResult").innerHTML = `
-                <div class="row g-3">
+            <div class="row g-3">
 
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded">
-                            <strong>Számlaazonosító</strong>
-                            <div>${format(data.id)}</div>
-                        </div>
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Számlaazonosító</strong>
+                        <div>${format(account.id)}</div>
                     </div>
-
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded">
-                            <strong>Egyenleg</strong>
-                            <div>
-                                ${format(data.balance)}
-                                ${format(data.currency)}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded">
-                            <strong>Nettó eszközérték (NAV)</strong>
-                            <div>${format(data.NAV)}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded">
-                            <strong>Szabad fedezet</strong>
-                            <div>${format(data.marginAvailable)}</div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded">
-                            <strong>Nyitott kötések</strong>
-                            <div>${format(data.openTradeCount)}</div>
-                        </div>
-                    </div>
-
                 </div>
-            `;
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Egyenleg</strong>
+                        <div>
+                            ${format(account.balance)}
+                            ${format(account.currency)}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Nettó eszközérték (NAV)</strong>
+                        <div>
+                            ${format(account.NAV)}
+                            ${format(account.currency)}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Szabad fedezet</strong>
+                        <div>
+                            ${format(account.marginAvailable)}
+                            ${format(account.currency)}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Nyitott kötések</strong>
+                        <div>${format(account.openTradeCount)}</div>
+                    </div>
+                </div>
+
+            </div>
+        `;
 
         } catch (error) {
             showMessage(error.message, false);
         }
     }
+
 
     // CURRENT PRICE
 
