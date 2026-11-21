@@ -1,0 +1,697 @@
+
+<!DOCTYPE html>
+<html lang="hu" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title th:text="${pageTitle} + ' | ForexWebApp'">
+        ForexWebApp
+    </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+
+        <a class="navbar-brand fw-bold" th:href="@{/}">
+            ForexWebApp
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+
+            <div class="navbar-nav ms-auto">
+
+                <a class="nav-link" th:href="@{/}">Főoldal</a>
+                <a class="nav-link" th:href="@{/soap}">SOAP</a>
+
+                <a class="nav-link"
+                   th:href="@{/forex/account}">Forex-account</a>
+
+                <a class="nav-link"
+                   th:href="@{/forex/price}">Forex-AktÁr</a>
+
+                <a class="nav-link"
+                   th:href="@{/forex/history}">Forex-HistÁr</a>
+
+                <a class="nav-link"
+                   th:href="@{/forex/open}">Forex-Nyit</a>
+
+                <a class="nav-link"
+                   th:href="@{/forex/positions}">Forex-Poz</a>
+
+                <a class="nav-link"
+                   th:href="@{/forex/close}">Forex-Zár</a>
+
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-5">
+
+    <h1 class="mb-2" th:text="${pageTitle}">
+        Forex
+    </h1>
+
+    <p class="text-secondary mb-4">
+        OANDA v20 REST API – demo kereskedési környezet
+    </p>
+
+    <div id="message"
+         class="alert d-none"
+         role="alert">
+    </div>
+
+    <!-- ACCOUNT -->
+
+    <section th:if="${activePage == 'account'}"
+             class="feature-card">
+
+        <h2 class="h4">Számlainformációk</h2>
+
+        <button class="btn btn-primary mb-3"
+                onclick="loadAccount()">
+            Számlaadatok lekérése
+        </button>
+
+        <div id="accountResult">
+            Kattints a lekérdezés gombra.
+        </div>
+
+    </section>
+
+    <!-- CURRENT PRICE -->
+
+    <section th:if="${activePage == 'price'}"
+             class="feature-card">
+
+        <h2 class="h4">Aktuális Forex árfolyam</h2>
+
+        <form id="priceForm">
+
+            <label class="form-label">
+                Instrumentum
+            </label>
+
+            <select id="priceInstrument"
+                    class="form-select mb-3">
+
+                <option value="EUR_USD">EUR_USD</option>
+                <option value="GBP_USD">GBP_USD</option>
+                <option value="USD_JPY">USD_JPY</option>
+                <option value="USD_CHF">USD_CHF</option>
+                <option value="AUD_USD">AUD_USD</option>
+                <option value="USD_CAD">USD_CAD</option>
+                <option value="EUR_GBP">EUR_GBP</option>
+                <option value="EUR_JPY">EUR_JPY</option>
+
+            </select>
+
+            <button class="btn btn-primary" type="submit">
+                Aktuális ár lekérdezése
+            </button>
+
+        </form>
+
+        <div id="priceResult" class="mt-4"></div>
+
+    </section>
+
+    <!-- HISTORICAL PRICE -->
+
+    <section th:if="${activePage == 'history'}"
+             class="feature-card">
+
+        <h2 class="h4">Historikus árfolyamok</h2>
+
+        <form id="historyForm">
+
+            <label class="form-label">
+                Instrumentum
+            </label>
+
+            <select id="historyInstrument"
+                    class="form-select mb-3">
+
+                <option value="EUR_USD">EUR_USD</option>
+                <option value="GBP_USD">GBP_USD</option>
+                <option value="USD_JPY">USD_JPY</option>
+                <option value="USD_CHF">USD_CHF</option>
+                <option value="AUD_USD">AUD_USD</option>
+
+            </select>
+
+            <label class="form-label">
+                Granularity
+            </label>
+
+            <select id="granularity"
+                    class="form-select mb-3">
+
+                <option value="M5">M5 – 5 perc</option>
+                <option value="M15">M15 – 15 perc</option>
+                <option value="M30">M30 – 30 perc</option>
+                <option value="H1">H1 – 1 óra</option>
+                <option value="H4">H4 – 4 óra</option>
+                <option value="D">D – napi</option>
+                <option value="W">W – heti</option>
+                <option value="M">M – havi</option>
+
+            </select>
+
+            <button class="btn btn-primary" type="submit">
+                Utolsó 10 ár lekérdezése
+            </button>
+
+        </form>
+
+        <div class="table-responsive mt-4">
+
+            <table class="table table-striped">
+
+                <thead>
+                <tr>
+                    <th>Időpont</th>
+                    <th>Nyitó ár</th>
+                    <th>Maximum</th>
+                    <th>Minimum</th>
+                    <th>Záró ár</th>
+                </tr>
+                </thead>
+
+                <tbody id="historyResult">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <!-- OPEN TRADE -->
+
+    <section th:if="${activePage == 'open'}"
+             class="feature-card">
+
+        <h2 class="h4">Új pozíció nyitása</h2>
+
+        <form id="openForm">
+
+            <label class="form-label">
+                Instrumentum
+            </label>
+
+            <select id="openInstrument"
+                    class="form-select mb-3">
+
+                <option value="EUR_USD">EUR_USD</option>
+                <option value="GBP_USD">GBP_USD</option>
+                <option value="USD_JPY">USD_JPY</option>
+                <option value="USD_CHF">USD_CHF</option>
+                <option value="AUD_USD">AUD_USD</option>
+
+            </select>
+
+            <label class="form-label">
+                Mennyiség
+            </label>
+
+            <input type="number"
+                   id="units"
+                   class="form-control mb-3"
+                   step="1"
+                   min="-1000000"
+                   max="1000000"
+                   required
+                   placeholder="Pl. 100 vagy -100">
+
+            <p class="text-secondary">
+                Pozitív érték: Long<br>
+                Negatív érték: Short
+            </p>
+
+            <button type="submit"
+                    class="btn btn-success">
+                Pozíció nyitása piaci áron
+            </button>
+
+        </form>
+
+        <div id="openResult" class="mt-4"></div>
+
+    </section>
+
+    <!-- OPEN POSITIONS -->
+
+    <section th:if="${activePage == 'positions'}"
+             class="feature-card">
+
+        <h2 class="h4">Nyitott pozíciók</h2>
+
+        <button class="btn btn-primary mb-3"
+                onclick="loadPositions()">
+            Pozíciók frissítése
+        </button>
+
+        <div class="table-responsive">
+
+            <table class="table table-striped">
+
+                <thead>
+                <tr>
+                    <th>Trade ID</th>
+                    <th>Instrumentum</th>
+                    <th>Mennyiség</th>
+                    <th>Nyitási ár</th>
+                    <th>Nem realizált P/L</th>
+                </tr>
+                </thead>
+
+                <tbody id="positionsResult">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <!-- CLOSE TRADE -->
+
+    <section th:if="${activePage == 'close'}"
+             class="feature-card">
+
+        <h2 class="h4">Pozíció lezárása</h2>
+
+        <form id="closeForm">
+
+            <label class="form-label">
+                Trade ID
+            </label>
+
+            <input type="number"
+                   id="tradeId"
+                   class="form-control mb-3"
+                   min="1"
+                   step="1"
+                   required
+                   placeholder="Add meg a Trade ID-t">
+
+            <button type="submit"
+                    class="btn btn-danger">
+                Pozíció lezárása piaci áron
+            </button>
+
+        </form>
+
+        <div id="closeResult" class="mt-4"></div>
+
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    IDE ÍRD A NEVEDET - IDE ÍRD A NEPTUN KÓDOD
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+    async function api(url, options = {}) {
+
+        const response = await fetch(url, options);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "API hiba történt.");
+        }
+
+        return data;
+    }
+
+    function showMessage(message, success = true) {
+
+        const box = document.getElementById("message");
+
+        box.textContent = message;
+
+        box.className = success
+            ? "alert alert-success"
+            : "alert alert-danger";
+    }
+
+    function format(value) {
+
+        if (value === undefined || value === null) {
+            return "-";
+        }
+
+        return value;
+    }
+
+    // ACCOUNT
+
+    async function loadAccount() {
+
+        try {
+
+            const data = await api("/api/oanda/account");
+
+            document.getElementById("accountResult").innerHTML = `
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Számlaazonosító</strong>
+                        <div>${format(data.id)}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Egyenleg</strong>
+                        <div>${format(data.balance)}
+                        ${format(data.currency)}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Nettó eszközérték (NAV)</strong>
+                        <div>${format(data.NAV)}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Szabad fedezet</strong>
+                        <div>${format(data.marginAvailable)}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 border rounded">
+                        <strong>Nyitott kötések</strong>
+                        <div>${format(data.openTradeCount)}</div>
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+        } catch (error) {
+            showMessage(error.message, false);
+        }
+    }
+
+    // CURRENT PRICE
+
+    const priceForm = document.getElementById("priceForm");
+
+    if (priceForm) {
+
+        priceForm.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const instrument =
+                document.getElementById("priceInstrument").value;
+
+            try {
+
+                const data = await api(
+                    "/api/oanda/price?instrument=" + instrument
+                );
+
+                const price = data.prices?.[0];
+
+                if (!price) {
+                    throw new Error("Nem érkezett árfolyamadat.");
+                }
+
+                const bid = price.bids?.[0]?.price ?? "-";
+                const ask = price.asks?.[0]?.price ?? "-";
+
+                document.getElementById("priceResult").innerHTML = `
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <strong>Instrumentum</strong>
+                            <h4>${instrument}</h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <strong>Bid ár</strong>
+                            <h4>${bid}</h4>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <strong>Ask ár</strong>
+                            <h4>${ask}</h4>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            } catch (error) {
+                showMessage(error.message, false);
+            }
+
+        });
+    }
+
+    // HISTORICAL PRICE
+
+    const historyForm =
+        document.getElementById("historyForm");
+
+    if (historyForm) {
+
+        historyForm.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const instrument =
+                document.getElementById("historyInstrument").value;
+
+            const granularity =
+                document.getElementById("granularity").value;
+
+            try {
+
+                const data = await api(
+                    "/api/oanda/history?instrument="
+                    + instrument
+                    + "&granularity="
+                    + granularity
+                );
+
+                const tbody =
+                    document.getElementById("historyResult");
+
+                tbody.innerHTML = "";
+
+                data.candles.forEach(candle => {
+
+                    const row = document.createElement("tr");
+
+                    const values = [
+                        candle.time,
+                        candle.mid?.o,
+                        candle.mid?.h,
+                        candle.mid?.l,
+                        candle.mid?.c
+                    ];
+
+                    values.forEach(value => {
+
+                        const cell = document.createElement("td");
+
+                        cell.textContent = format(value);
+
+                        row.appendChild(cell);
+
+                    });
+
+                    tbody.appendChild(row);
+
+                });
+
+            } catch (error) {
+                showMessage(error.message, false);
+            }
+
+        });
+    }
+
+    // OPEN TRADE
+
+    const openForm = document.getElementById("openForm");
+
+    if (openForm) {
+
+        openForm.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const instrument =
+                document.getElementById("openInstrument").value;
+
+            const units =
+                document.getElementById("units").value;
+
+            if (Number(units) === 0) {
+                showMessage("A mennyiség nem lehet nulla.", false);
+                return;
+            }
+
+            if (!confirm(
+                "Biztosan megnyitod ezt a pozíciót demo számlán?"
+            )) {
+                return;
+            }
+
+            try {
+
+                const params = new URLSearchParams({
+                    instrument,
+                    units
+                });
+
+                const data = await api(
+                    "/api/oanda/open?" + params,
+                    {method: "POST"}
+                );
+
+                document.getElementById("openResult").textContent =
+                    "A megbízás elküldve. Order ID: "
+                    + (data.orderCreateTransaction?.id ?? "-");
+
+                showMessage("A pozíciónyitási kérés sikeresen feldolgozva.");
+
+            } catch (error) {
+                showMessage(error.message, false);
+            }
+
+        });
+    }
+
+    // OPEN POSITIONS
+
+    async function loadPositions() {
+
+        try {
+
+            const data = await api("/api/oanda/positions");
+
+            const tbody =
+                document.getElementById("positionsResult");
+
+            tbody.innerHTML = "";
+
+            data.trades.forEach(trade => {
+
+                const row = document.createElement("tr");
+
+                const values = [
+                    trade.id,
+                    trade.instrument,
+                    trade.currentUnits,
+                    trade.price,
+                    trade.unrealizedPL
+                ];
+
+                values.forEach(value => {
+
+                    const cell = document.createElement("td");
+
+                    cell.textContent = format(value);
+
+                    row.appendChild(cell);
+
+                });
+
+                tbody.appendChild(row);
+
+            });
+
+            if (data.trades.length === 0) {
+
+                tbody.innerHTML =
+                    "<tr><td colspan='5'>Nincs nyitott pozíció.</td></tr>";
+
+            }
+
+        } catch (error) {
+            showMessage(error.message, false);
+        }
+    }
+
+    // CLOSE TRADE
+
+    const closeForm = document.getElementById("closeForm");
+
+    if (closeForm) {
+
+        closeForm.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const tradeId =
+                document.getElementById("tradeId").value;
+
+            if (!confirm(
+                "Biztosan le szeretnéd zárni a " + tradeId
+                + " azonosítójú pozíciót?"
+            )) {
+                return;
+            }
+
+            try {
+
+                const params = new URLSearchParams({tradeId});
+
+                const data = await api(
+                    "/api/oanda/close?" + params,
+                    {method: "POST"}
+                );
+
+                document.getElementById("closeResult").textContent =
+                    "A lezárási kérés sikeres. Trade ID: "
+                    + tradeId;
+
+                showMessage("A pozíció lezárása sikeresen feldolgozva.");
+
+            } catch (error) {
+                showMessage(error.message, false);
+            }
+
+        });
+    }
+
+</script>
+
+</body>
+</html>

@@ -17,35 +17,49 @@ public class PageController {
         return "soap";
     }
 
+
     @GetMapping("/forex/account")
-    public String forexAccount() {
-        return page("Forex-account", "A kapcsolódó OANDA-számlainformációk itt jelennek majd meg.");
+    public String forexAccount(Model model) {
+        model.addAttribute("activePage", "account");
+        model.addAttribute("pageTitle", "Forex-account");
+        return "forex";
     }
 
     @GetMapping("/forex/price")
-    public String forexPrice() {
-        return page("Forex-AktÁr", "Instrumentum kiválasztása és aktuális árfolyam lekérdezése.");
+    public String forexPrice(Model model) {
+        model.addAttribute("activePage", "price");
+        model.addAttribute("pageTitle", "Forex-AktÁr");
+        return "forex";
     }
 
     @GetMapping("/forex/history")
-    public String forexHistory() {
-        return page("Forex-HistÁr", "Historikus árfolyamok lekérdezése instrumentum és granularitás alapján.");
+    public String forexHistory(Model model) {
+        model.addAttribute("activePage", "history");
+        model.addAttribute("pageTitle", "Forex-HistÁr");
+        return "forex";
     }
 
     @GetMapping("/forex/open")
-    public String forexOpen() {
-        return page("Forex-Nyit", "Piaci pozíció nyitása pozitív (Long) vagy negatív (Short) mennyiséggel.");
+    public String forexOpen(Model model) {
+        model.addAttribute("activePage", "open");
+        model.addAttribute("pageTitle", "Forex-Nyit");
+        return "forex";
     }
 
     @GetMapping("/forex/positions")
-    public String forexPositions() {
-        return page("Forex-Poz", "A nyitott pozíciók táblázata itt jelenik majd meg.");
+    public String forexPositions(Model model) {
+        model.addAttribute("activePage", "positions");
+        model.addAttribute("pageTitle", "Forex-Poz");
+        return "forex";
     }
 
     @GetMapping("/forex/close")
-    public String forexClose() {
-        return page("Forex-Zár", "Pozíció lezárása tradeId alapján.");
+    public String forexClose(Model model) {
+        model.addAttribute("activePage", "close");
+        model.addAttribute("pageTitle", "Forex-Zár");
+        return "forex";
     }
+
 
     private String page(String title, String description) {
         return page(title, description, new org.springframework.ui.ConcurrentModel());
