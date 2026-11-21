@@ -1,0 +1,7 @@
+body { min-height: 100vh; display: flex; flex-direction: column; background: #f7f8fb; color: #172033; }
+main { flex: 1; }
+.hero-section { background: linear-gradient(135deg, #eef3ff 0%, #ffffff 65%, #e8f6f3 100%); }
+.min-vh-50 { min-height: 52vh; }
+.eyebrow { color: #3157c8; font-weight: 700; letter-spacing: .16em; font-size: .78rem; }
+.hero-card, .feature-card { background: #fff; border: 1px solid #e6eaf1; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 12px 32px rgba(25, 40, 75, .06); }
+.site-footer { margin-top: auto; padding: 1.25rem; text-align: center; background: #172033; color: #fff; font-size: .9rem; }
