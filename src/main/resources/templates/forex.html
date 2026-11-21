@@ -103,7 +103,7 @@
 
         <form id="priceForm">
 
-            <label class="form-label">
+            <label class="form-label" for="priceInstrument">
                 Instrumentum
             </label>
 
@@ -140,7 +140,7 @@
 
         <form id="historyForm">
 
-            <label class="form-label">
+            <label class="form-label" for="historyInstrument">
                 Instrumentum
             </label>
 
@@ -155,7 +155,7 @@
 
             </select>
 
-            <label class="form-label">
+            <label class="form-label" for="granularity">
                 Granularity
             </label>
 
@@ -211,7 +211,7 @@
 
         <form id="openForm">
 
-            <label class="form-label">
+            <label class="form-label" for="openInstrument">
                 Instrumentum
             </label>
 
@@ -226,7 +226,7 @@
 
             </select>
 
-            <label class="form-label">
+            <label class="form-label" for="units">
                 Mennyiség
             </label>
 
@@ -240,7 +240,8 @@
                    placeholder="Pl. 100 vagy -100">
 
             <p class="text-secondary">
-                Pozitív érték: Long<br>
+                Pozitív érték: Long
+                <br>
                 Negatív érték: Short
             </p>
 
@@ -299,7 +300,7 @@
 
         <form id="closeForm">
 
-            <label class="form-label">
+            <label class="form-label" for="tradeId">
                 Trade ID
             </label>
 
@@ -332,6 +333,8 @@
 
 <script>
 
+    // KÖZÖS API SEGÉDFÜGGVÉNY
+
     async function api(url, options = {}) {
 
         const response = await fetch(url, options);
@@ -339,11 +342,17 @@
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || "API hiba történt.");
+            throw new Error(
+                data.error ||
+                data.errorMessage ||
+                "API hiba történt. HTTP: " + response.status
+            );
         }
 
         return data;
     }
+
+    // ÜZENET MEGJELENÍTÉSE
 
     function showMessage(message, success = true) {
 
@@ -355,6 +364,8 @@
             ? "alert alert-success"
             : "alert alert-danger";
     }
+
+    // ÉRTÉKEK FORMÁZÁSA
 
     function format(value) {
 
@@ -374,46 +385,48 @@
             const data = await api("/api/oanda/account");
 
             document.getElementById("accountResult").innerHTML = `
-            <div class="row g-3">
+                <div class="row g-3">
 
-                <div class="col-md-4">
-                    <div class="p-3 border rounded">
-                        <strong>Számlaazonosító</strong>
-                        <div>${format(data.id)}</div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <strong>Számlaazonosító</strong>
+                            <div>${format(data.id)}</div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-4">
-                    <div class="p-3 border rounded">
-                        <strong>Egyenleg</strong>
-                        <div>${format(data.balance)}
-                        ${format(data.currency)}</div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <strong>Egyenleg</strong>
+                            <div>
+                                ${format(data.balance)}
+                                ${format(data.currency)}
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-4">
-                    <div class="p-3 border rounded">
-                        <strong>Nettó eszközérték (NAV)</strong>
-                        <div>${format(data.NAV)}</div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <strong>Nettó eszközérték (NAV)</strong>
+                            <div>${format(data.NAV)}</div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-4">
-                    <div class="p-3 border rounded">
-                        <strong>Szabad fedezet</strong>
-                        <div>${format(data.marginAvailable)}</div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <strong>Szabad fedezet</strong>
+                            <div>${format(data.marginAvailable)}</div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-4">
-                    <div class="p-3 border rounded">
-                        <strong>Nyitott kötések</strong>
-                        <div>${format(data.openTradeCount)}</div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded">
+                            <strong>Nyitott kötések</strong>
+                            <div>${format(data.openTradeCount)}</div>
+                        </div>
                     </div>
-                </div>
 
-            </div>
-        `;
+                </div>
+            `;
 
         } catch (error) {
             showMessage(error.message, false);
@@ -436,7 +449,8 @@
             try {
 
                 const data = await api(
-                    "/api/oanda/price?instrument=" + instrument
+                    "/api/oanda/price?instrument=" +
+                    encodeURIComponent(instrument)
                 );
 
                 const price = data.prices?.[0];
@@ -449,36 +463,35 @@
                 const ask = price.asks?.[0]?.price ?? "-";
 
                 document.getElementById("priceResult").innerHTML = `
-                <div class="row g-3">
+                    <div class="row g-3">
 
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded">
-                            <strong>Instrumentum</strong>
-                            <h4>${instrument}</h4>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded">
+                                <strong>Instrumentum</strong>
+                                <h4>${instrument}</h4>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded">
-                            <strong>Bid ár</strong>
-                            <h4>${bid}</h4>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded">
+                                <strong>Bid ár</strong>
+                                <h4>${bid}</h4>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-4">
-                        <div class="p-3 border rounded">
-                            <strong>Ask ár</strong>
-                            <h4>${ask}</h4>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded">
+                                <strong>Ask ár</strong>
+                                <h4>${ask}</h4>
+                            </div>
                         </div>
-                    </div>
 
-                </div>
-            `;
+                    </div>
+                `;
 
             } catch (error) {
                 showMessage(error.message, false);
             }
-
         });
     }
 
@@ -501,11 +514,13 @@
 
             try {
 
+                const params = new URLSearchParams({
+                    instrument,
+                    granularity
+                });
+
                 const data = await api(
-                    "/api/oanda/history?instrument="
-                    + instrument
-                    + "&granularity="
-                    + granularity
+                    "/api/oanda/history?" + params
                 );
 
                 const tbody =
@@ -513,7 +528,9 @@
 
                 tbody.innerHTML = "";
 
-                data.candles.forEach(candle => {
+                const candles = data.candles ?? [];
+
+                candles.forEach(candle => {
 
                     const row = document.createElement("tr");
 
@@ -532,21 +549,23 @@
                         cell.textContent = format(value);
 
                         row.appendChild(cell);
-
                     });
 
                     tbody.appendChild(row);
-
                 });
+
+                if (candles.length === 0) {
+                    tbody.innerHTML =
+                        "<tr><td colspan='5'>Nincs historikus adat.</td></tr>";
+                }
 
             } catch (error) {
                 showMessage(error.message, false);
             }
-
         });
     }
 
-    // OPEN TRADE
+    // OPEN TRADE - JAVÍTOTT
 
     const openForm = document.getElementById("openForm");
 
@@ -563,7 +582,10 @@
                 document.getElementById("units").value;
 
             if (Number(units) === 0) {
-                showMessage("A mennyiség nem lehet nulla.", false);
+                showMessage(
+                    "A mennyiség nem lehet nulla.",
+                    false
+                );
                 return;
             }
 
@@ -582,19 +604,90 @@
 
                 const data = await api(
                     "/api/oanda/open?" + params,
-                    {method: "POST"}
+                    { method: "POST" }
                 );
 
-                document.getElementById("openResult").textContent =
-                    "A megbízás elküldve. Order ID: "
-                    + (data.orderCreateTransaction?.id ?? "-");
+                const result =
+                    document.getElementById("openResult");
 
-                showMessage("A pozíciónyitási kérés sikeresen feldolgozva.");
+                // Valóban teljesült a megbízás
+
+                if (data.orderFillTransaction) {
+
+                    const fill = data.orderFillTransaction;
+
+                    const tradeId =
+                        fill.tradeOpened?.tradeID;
+
+                    if (tradeId) {
+
+                        result.textContent =
+                            "A pozíció sikeresen megnyílt. " +
+                            "Trade ID: " + tradeId;
+
+                        showMessage(
+                            "Sikeres pozíciónyitás!"
+                        );
+
+                    } else {
+
+                        result.textContent =
+                            "A megbízás teljesült, de nem jött létre " +
+                            "új Trade ID. Order Fill ID: " +
+                            format(fill.id);
+
+                        showMessage(
+                            "A megbízás teljesült, de nem feltétlenül " +
+                            "nyílt új pozíció."
+                        );
+                    }
+
+                } else if (data.orderCancelTransaction) {
+
+                    // OANDA törölte a megbízást
+
+                    const reason =
+                        data.orderCancelTransaction.reason ??
+                        "Ismeretlen ok";
+
+                    result.textContent =
+                        "A megbízás törölve. Ok: " + reason;
+
+                    if (reason === "MARKET_HALTED") {
+
+                        showMessage(
+                            "A pozíció nem nyílt meg: " +
+                            "a kereskedés jelenleg szünetel " +
+                            "(MARKET_HALTED).",
+                            false
+                        );
+
+                    } else {
+
+                        showMessage(
+                            "A pozíció nem nyílt meg: " + reason,
+                            false
+                        );
+                    }
+
+                } else {
+
+                    result.textContent =
+                        "A megbízás teljesítése nem igazolt.";
+
+                    showMessage(
+                        "Az OANDA nem igazolta a pozíciónyitást.",
+                        false
+                    );
+                }
 
             } catch (error) {
+
+                document.getElementById("openResult").textContent =
+                    "A pozíciónyitás sikertelen.";
+
                 showMessage(error.message, false);
             }
-
         });
     }
 
@@ -611,7 +704,9 @@
 
             tbody.innerHTML = "";
 
-            data.trades.forEach(trade => {
+            const trades = data.trades ?? [];
+
+            trades.forEach(trade => {
 
                 const row = document.createElement("tr");
 
@@ -630,18 +725,15 @@
                     cell.textContent = format(value);
 
                     row.appendChild(cell);
-
                 });
 
                 tbody.appendChild(row);
-
             });
 
-            if (data.trades.length === 0) {
+            if (trades.length === 0) {
 
                 tbody.innerHTML =
                     "<tr><td colspan='5'>Nincs nyitott pozíció.</td></tr>";
-
             }
 
         } catch (error) {
@@ -649,7 +741,7 @@
         }
     }
 
-    // CLOSE TRADE
+    // CLOSE TRADE - JAVÍTOTT
 
     const closeForm = document.getElementById("closeForm");
 
@@ -663,31 +755,78 @@
                 document.getElementById("tradeId").value;
 
             if (!confirm(
-                "Biztosan le szeretnéd zárni a " + tradeId
-                + " azonosítójú pozíciót?"
+                "Biztosan le szeretnéd zárni a " +
+                tradeId + " azonosítójú pozíciót?"
             )) {
                 return;
             }
 
             try {
 
-                const params = new URLSearchParams({tradeId});
+                const params = new URLSearchParams({
+                    tradeId
+                });
 
                 const data = await api(
                     "/api/oanda/close?" + params,
-                    {method: "POST"}
+                    { method: "POST" }
                 );
 
-                document.getElementById("closeResult").textContent =
-                    "A lezárási kérés sikeres. Trade ID: "
-                    + tradeId;
+                const result =
+                    document.getElementById("closeResult");
 
-                showMessage("A pozíció lezárása sikeresen feldolgozva.");
+                const fill = data.orderFillTransaction;
+
+                // Ellenőrizzük a tényleges lezárást
+
+                const closedTrade = fill?.tradesClosed?.some(
+                    trade =>
+                        String(trade.tradeID) === String(tradeId)
+                );
+
+                if (closedTrade) {
+
+                    result.textContent =
+                        "A pozíció sikeresen lezárva. " +
+                        "Trade ID: " + tradeId;
+
+                    showMessage(
+                        "Sikeres pozíciózárás!"
+                    );
+
+                } else if (data.orderCancelTransaction) {
+
+                    const reason =
+                        data.orderCancelTransaction.reason ??
+                        "Ismeretlen ok";
+
+                    result.textContent =
+                        "A lezárási megbízás törölve. " +
+                        "Ok: " + reason;
+
+                    showMessage(
+                        "A pozíció nem zárult le: " + reason,
+                        false
+                    );
+
+                } else {
+
+                    result.textContent =
+                        "A pozíció lezárása nem igazolt.";
+
+                    showMessage(
+                        "Az OANDA nem igazolta a pozíció lezárását.",
+                        false
+                    );
+                }
 
             } catch (error) {
+
+                document.getElementById("closeResult").textContent =
+                    "A pozíciózárás sikertelen.";
+
                 showMessage(error.message, false);
             }
-
         });
     }
 

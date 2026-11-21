@@ -25,7 +25,7 @@ import java.util.List;
 public class MnbSoapService {
 
     private static final String ENDPOINT =
-            "https://www.mnb.hu/arfolyamok.asmx";
+            "http://www.mnb.hu/arfolyamok.asmx?wsdl";
 
     private static final String NAMESPACE =
             "http://www.mnb.hu/webservices/";
